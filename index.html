@@ -64,7 +64,7 @@ nav.scrolled{background:rgba(13,11,8,.98);border-bottom:1px solid rgba(212,168,9
 .hero-img-side{position:absolute;right:0;top:0;bottom:0;width:48%;z-index:1;display:flex;align-items:center;justify-content:center}
 .hero-frame{width:clamp(280px,36vw,500px);height:clamp(360px,52vh,640px);position:relative;margin-right:3rem}
 .portrait-ph{width:100%;height:100%;background:linear-gradient(135deg,var(--ash),var(--smoke));border:1px solid rgba(212,168,98,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;position:relative;overflow:hidden}
-.portrait-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.portrait-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:var(--ash)}
 .portrait-ph-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;background:rgba(13,11,8,.5);transition:opacity .3s}
 .portrait-ph img ~ .portrait-ph-overlay{opacity:0}
 .portrait-ph-overlay span{font-size:2.5rem;color:rgba(212,168,98,.4)}
@@ -101,10 +101,10 @@ section{position:relative;z-index:2}
 /* GALLERY */
 .gallery{padding:7rem 4rem;background:var(--char)}
 .gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;max-width:1080px;margin:0 auto}
-.gal-item{position:relative;overflow:hidden;background:var(--ash);border:1px solid rgba(212,168,98,.08);transition:border-color .4s;aspect-ratio:3/4}
+.gal-item{position:relative;overflow:hidden;background:var(--ash);border:1px solid rgba(212,168,98,.08);transition:border-color .4s;aspect-ratio:4/5;min-height:280px}
 .gal-item:nth-child(1){grid-column:span 2;aspect-ratio:16/9}
 .gal-item:nth-child(4){grid-column:span 2;aspect-ratio:16/9}
-.gal-img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.25,.46,.45,.94)}
+.gal-img{width:100%;height:100%;object-fit:contain;background:var(--ash);transition:transform .6s cubic-bezier(.25,.46,.45,.94)}
 .gal-item:hover .gal-img{transform:scale(1.05)}
 .gal-ph{width:100%;height:100%;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.7rem;background:linear-gradient(135deg,var(--ash),var(--smoke))}
 .gal-ph span{font-size:2.2rem;color:rgba(212,168,98,.2)}
@@ -1076,51 +1076,31 @@ function exportSite(){
 
 
 // ─── SECRET ADMIN ACCESS ──────────────────────────────────────
-// Completely hidden from visitors - no visible button
-// Access methods:
-// Desktop: Type "open" anywhere on page (not in input field)
-// Desktop: Press Ctrl+Shift+A
-// Mobile: Tap footer copyright 5 times fast
+// LAPTOP: Press Ctrl + Shift + A
+// MOBILE: Tap footer copyright text 5x fast
 
-let _buf = '', _tapCount = 0, _tapTimer = null;
+let _tapCount = 0, _tapTimer = null;
 
+// Laptop shortcut only - Ctrl+Shift+A (no typing trigger to avoid freeze)
 document.addEventListener('keydown', function(e){
-  // Skip if user is typing in any input/textarea
-  const tag = document.activeElement.tagName.toLowerCase();
-  if(tag === 'input' || tag === 'textarea' || tag === 'select') return;
-  
-  // Ctrl+Shift+A shortcut
-  if(e.ctrlKey && e.shiftKey && e.key === 'A'){
+  if(e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')){
     e.preventDefault();
-    openAdmin();
-    return;
-  }
-  
-  // Secret word "open" typed on page
-  _buf += e.key.toLowerCase();
-  if(_buf.length > 6) _buf = _buf.slice(-6);
-  if(_buf.includes('open')){
-    _buf = '';
     openAdmin();
   }
 });
 
-// Mobile: tap copyright 5 times
-document.addEventListener('DOMContentLoaded', function(){
-  const copy = document.getElementById('footerCopy');
+// Mobile: tap copyright 5 times fast
+setTimeout(function(){
+  var copy = document.getElementById('footerCopy');
   if(copy){
-    copy.style.cursor = 'default';
     copy.addEventListener('click', function(){
       _tapCount++;
       clearTimeout(_tapTimer);
-      if(_tapCount >= 5){
-        _tapCount = 0;
-        openAdmin();
-      }
-      _tapTimer = setTimeout(()=>{ _tapCount = 0; }, 2000);
+      _tapTimer = setTimeout(function(){ _tapCount = 0; }, 2500);
+      if(_tapCount >= 5){ _tapCount = 0; openAdmin(); }
     });
   }
-});
+}, 1000);
 
 // ─── INIT ──────────────────────────────────────────────────────
 applyAll();
