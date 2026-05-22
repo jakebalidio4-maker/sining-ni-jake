@@ -292,7 +292,7 @@ input[type=file]{display:none}
 <canvas id="particles"></canvas>
 
 <!-- ADMIN OVERLAY -->
-<div class="admin-overlay" id="adminOverlay" style="display:none">
+<div class="admin-overlay" id="adminOverlay" style="display:none!important">
   <div class="admin-panel">
     <div class="admin-header">
       <h2>Admin <em>Panel</em></h2>
@@ -836,14 +836,16 @@ function applyCta(){
 // ─── ADMIN PANEL ──────────────────────────────────────────────
 let loggedIn=false;
 function openAdmin(){
-  // Always reset to login screen first for security
+  var overlay=document.getElementById('adminOverlay');
+  overlay.style.removeProperty('display');
+  overlay.style.cssText='';
   if(!loggedIn){
     document.getElementById('adminLogin').style.display='flex';
     document.getElementById('adminContent').style.display='none';
     document.getElementById('adminPass').value='';
     document.getElementById('loginErr').style.display='none';
   }
-  document.getElementById('adminOverlay').classList.add('open');
+  overlay.classList.add('open');
   document.body.style.overflow='hidden';
   if(loggedIn) showAdminContent();
 }
@@ -1075,32 +1077,20 @@ function exportSite(){
 }
 
 
-// ─── SECRET ADMIN ACCESS ──────────────────────────────────────
-// LAPTOP: Press Ctrl + Shift + A
-// MOBILE: Tap footer copyright text 5x fast
 
-let _tapCount = 0, _tapTimer = null;
-
-// Laptop shortcut only - Ctrl+Shift+A (no typing trigger to avoid freeze)
-document.addEventListener('keydown', function(e){
-  if(e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')){
-    e.preventDefault();
-    openAdmin();
-  }
-});
-
-// Mobile: tap copyright 5 times fast
-setTimeout(function(){
-  var copy = document.getElementById('footerCopy');
-  if(copy){
-    copy.addEventListener('click', function(){
-      _tapCount++;
-      clearTimeout(_tapTimer);
-      _tapTimer = setTimeout(function(){ _tapCount = 0; }, 2500);
-      if(_tapCount >= 5){ _tapCount = 0; openAdmin(); }
+// ─── MOBILE TAP ADMIN (footer copyright - 5 taps) ───────────
+var _tc=0,_tt=null;
+document.addEventListener('DOMContentLoaded',function(){
+  var el=document.getElementById('footerCopy');
+  if(el){
+    el.addEventListener('click',function(){
+      _tc++;
+      clearTimeout(_tt);
+      _tt=setTimeout(function(){_tc=0;},2500);
+      if(_tc>=5){_tc=0;openAdmin();}
     });
   }
-}, 1000);
+});
 
 // ─── INIT ──────────────────────────────────────────────────────
 applyAll();
